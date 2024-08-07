@@ -35,6 +35,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, useRef, use } from "react";
 import axios from "axios";
 import { Separator } from "@/components/ui/separator";
+import BarcodeScanner from "@/components/Barcode";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -86,6 +87,7 @@ export default function Component() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [selectedPending, setSelectedPending] = useState(-1);
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
+
   const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>(
     []
   );

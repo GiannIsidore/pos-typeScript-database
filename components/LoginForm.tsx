@@ -8,6 +8,8 @@ import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
 
 export default function LoginForm() {
+  const [scannedData, setScannedData] = useState("");
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const usernameRef = useRef<HTMLInputElement>(null);
