@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 07, 2024 at 06:56 AM
+-- Generation Time: Aug 07, 2024 at 11:07 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,7 +52,12 @@ INSERT INTO `products` (`barcode`, `prod_name`, `prod_price`) VALUES
 ('1012', 'Toyo', 28.00),
 ('1013', 'Suka', 22.00),
 ('1014', 'Patis', 33.00),
-('1015', 'Saging', 55.00);
+('1015', 'Saging', 55.00),
+('1016', 'boss antipuesto', 20.00),
+('1017', 'nips', 24.00),
+('1018', 'kape stick', 5.00),
+('1019', 'snober', 20.00),
+('1020', 'ice', 3.00);
 
 -- --------------------------------------------------------
 
@@ -85,7 +90,11 @@ INSERT INTO `sales` (`sales_id`, `sales_userId`, `sales_cashTendered`, `sales_ch
 (17, 1, 100.00, 28.00, 72.00, '2024-08-07 04:21:27'),
 (18, 1, 50.00, 10.00, 40.00, '2024-08-07 04:23:32'),
 (19, 1, 40.00, 5.00, 35.00, '2024-08-07 04:23:42'),
-(20, 1, 20.00, 0.00, 20.00, '2024-08-07 04:25:53');
+(20, 1, 20.00, 0.00, 20.00, '2024-08-07 04:25:53'),
+(21, 2, 20.00, 10.00, 10.00, '2024-08-07 09:16:41'),
+(22, 2, 20.00, 10.00, 10.00, '2024-08-07 11:23:36'),
+(23, 4, 70.00, 0.00, 70.00, '2024-08-07 12:31:36'),
+(24, 4, 70.00, 5.00, 65.00, '2024-08-07 12:33:38');
 
 -- --------------------------------------------------------
 
@@ -122,7 +131,14 @@ INSERT INTO `sales_item` (`sales_itemId`, `sales_item_salesId`, `sales_item_prod
 (14, 17, '1013', 1, 22.00),
 (15, 18, '1010', 1, 40.00),
 (16, 19, '1004', 1, 35.00),
-(17, 20, '1003', 1, 20.00);
+(17, 20, '1003', 1, 20.00),
+(18, 21, '1001', 1, 10.00),
+(19, 22, '1001', 1, 10.00),
+(20, 23, '1001', 2, 10.00),
+(21, 23, '1003', 1, 20.00),
+(22, 23, '1002', 1, 30.00),
+(23, 24, '1001', 1, 10.00),
+(24, 24, '1015', 1, 55.00);
 
 -- --------------------------------------------------------
 
@@ -191,13 +207,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `sales`
 --
 ALTER TABLE `sales`
-  MODIFY `sales_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `sales_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `sales_item`
 --
 ALTER TABLE `sales_item`
-  MODIFY `sales_itemId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `sales_itemId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `users`

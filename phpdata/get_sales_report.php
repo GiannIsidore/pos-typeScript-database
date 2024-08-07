@@ -9,8 +9,7 @@ require_once '../phpdata/connection.php';
 // Start the session if necessary
 session_start();
 
-// Define the log file path
-$logFilePath = '../phpdata/userId.log'; // Adjust the path as necessary
+
 
 // Function to log data to a file with structured formatting
 function logToFile($message) {
@@ -21,10 +20,9 @@ function logToFile($message) {
 }
 if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
-    logToFile("Received userId: $userId"); // Log the userId
 } else {
     // If userId is not found, return an error and log the event
-    logToFile("User ID not provided");
+  
     echo json_encode(['error' => 'User ID not provided']);
     exit;
 }

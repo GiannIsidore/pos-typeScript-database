@@ -8,7 +8,7 @@ header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 // Start the session
-session_start();
+
 
 // Define the log file path
 $logFilePath = '../phpdata/usersPassedFromFrntEnd.log'; // Adjust the path as necessary
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $input['password'] ?? '';
 
     // Log the input data
-    file_put_contents($logFilePath, json_encode($input) . PHP_EOL, FILE_APPEND);
+    // file_put_contents($logFilePath, json_encode($input) . PHP_EOL, FILE_APPEND);
 
     if (empty($username) || empty($password)) {
         echo json_encode(['status' => 'error', 'message' => 'Username and password are required.']);

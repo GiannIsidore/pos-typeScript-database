@@ -53,6 +53,8 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { SideChart } from "@/components/SideCharts";
+import ProductsPage from "@/components/Products";
+import ProductTable from "@/components/AlertProducts";
 // types.ts
 export interface Transaction {
   id: number;
@@ -617,7 +619,7 @@ export default function Component() {
           // Extract the cashier's name from the first sale record
           const firstSale = sales[0];
           setCashierName(
-            `${firstSale.fName} ${firstSale.lName} (${firstSale.username})`
+            `${firstSale.fName} ${firstSale.lName}` || `(${firstSale.username})`
           );
         }
       } else {
@@ -632,6 +634,10 @@ export default function Component() {
   }, []);
   const printShiftReport = () => {
     if (salesData.length === 0) {
+      toast({
+        variant: "destructive",
+        description: "No sales data available to print.",
+      });
       console.error("No sales data available to print.");
       return;
     }
@@ -1052,10 +1058,6 @@ export default function Component() {
       if (adminPassword === adminPasswordFromDb) {
         if (action === "voidCart") {
           voidCart();
-          toast({
-            variant: "success",
-            description: "Cart voided successfully.",
-          });
         } else if (action === "generateReport") {
           printZReport();
           // toast({
@@ -1081,6 +1083,14 @@ export default function Component() {
   };
 
   const voidCart = () => {
+    if (cart.length === 0) {
+      toast({
+        variant: "destructive",
+        description: "Cart is already empty.",
+      });
+      return;
+    }
+
     setCart([]);
     setTotal(0);
     setCashTendered(0);
@@ -1107,25 +1117,20 @@ export default function Component() {
         <div className="text-white">
           <DateTimeDisplay />
         </div>{" "}
-        <pre className="text-3xl">Cashier: {fullname}</pre>
+        <pre className="text-3xl text-wrap">Cashier: {fullname}</pre>
         <pre className="animate-pulse"> Show Hotkeys (Ctrl + H)</pre>
-        <button
-          onClick={savePendingTransaction}
-          ref={saveToPending}
-          className="hidden"
-        >
-          Save Transaction
-        </button>
-        <Sheet>
-          <Drawer>
-            <DrawerTrigger ref={shiftDrawRef} className="hidden">
-              Open
-            </DrawerTrigger>
-            <DrawerContent style={{ height: "70vh" }}>
-              <DrawerHeader>
-                <DrawerTitle></DrawerTitle>
-                <DrawerDescription>
-                  <div className="p-5 max-w-lg mx-auto bg-white border border-dashed border-gray-400 max-h-[60vh] overflow-y-scroll">
+        <Drawer>
+          <DrawerTrigger ref={shiftDrawRef} className="hidden">
+            Open
+          </DrawerTrigger>
+          <DrawerContent
+            style={{ height: "70vh" }}
+            className="flex items-center"
+          >
+            <DrawerHeader className="flex items-center justify-center w-full">
+              <DrawerDescription className="flex items-center justify-center w-full">
+                <div>
+                  <div className="p-5 w-[50vw] mx-auto items-center justify-center bg-white border border-dashed border-gray-400 max-h-[60vh] overflow-y-scroll">
                     <h1 className="text-center text-xl font-bold border-b border-dashed border-gray-400 pb-2 mb-5">
                       Shift Sales Report
                     </h1>
@@ -1136,7 +1141,10 @@ export default function Component() {
                     )}
                     {salesData.length > 0 ? (
                       salesData.map((sale, index) => (
-                        <div key={index} className="mb-4">
+                        <div
+                          key={index}
+                          className="mb-4  justify-center flex flex-col text-left"
+                        >
                           <h3 className="text-base font-semibold mb-1">
                             Sale ID: {sale.sales_id}
                           </h3>
@@ -1167,14 +1175,19 @@ export default function Component() {
                   </div>
 
                   {/* <SideChart /> */}
-                </DrawerDescription>
-              </DrawerHeader>
-              <DrawerFooter>
-                <DrawerClose></DrawerClose>
-              </DrawerFooter>
-            </DrawerContent>
-          </Drawer>
-
+                </div>
+              </DrawerDescription>
+            </DrawerHeader>
+          </DrawerContent>
+        </Drawer>
+        <button
+          onClick={savePendingTransaction}
+          ref={saveToPending}
+          className="hidden"
+        >
+          Save Transaction
+        </button>
+        <Sheet>
           <SheetTrigger asChild>
             <Button
               variant="outline"
@@ -1202,28 +1215,38 @@ export default function Component() {
                         <strong>E</strong>: Focus on Cash Tendered Input
                       </li>
                       <li className="text-blue-600 font-semibold">
-                        <strong>R</strong>: Print Receipt
-                      </li>
-                      <li className="text-blue-600 font-semibold">
                         <strong>Ctrl + Enter</strong>: Add Item to Cart
                       </li>
                       <li className="text-blue-600 font-semibold">
                         <strong>Ctrl + C</strong>: Clear Barcode Input
                       </li>
                       <li className="text-blue-600 font-semibold">
-                        <strong>X</strong>: Toggle Shift Drawer
-                      </li>
-                      <li className="text-blue-600 font-semibold">
                         <strong>Ctrl + Q</strong>: Clear Quantity Input
-                      </li>
-                      <li className="text-blue-600 font-semibold">
-                        <strong>T</strong>: Open Receipt Dialog
                       </li>
                       <li className="text-blue-600 font-semibold">
                         <strong>Ctrl + S</strong>: Submit Payment
                       </li>
                       <li className="text-blue-600 font-semibold">
                         <strong>Ctrl + H</strong>: Open Hotkey Guide
+                      </li>
+                      <li className="text-blue-600 font-semibold">
+                        <strong>Ctrl + Z</strong>: Generate Z Report (Admin Auth
+                        Required)
+                      </li>
+                      <li className="text-blue-600 font-semibold">
+                        <strong>Shift + Left</strong>: Update Quantity
+                      </li>
+                      <li className="text-blue-600 font-semibold">
+                        <strong>Shift + Right</strong>: Delete Selected Item
+                      </li>
+                      <li className="text-blue-600 font-semibold">
+                        <strong>Shift + L</strong>: Logout
+                      </li>
+                      <li className="text-blue-600 font-semibold">
+                        <strong>T</strong>: Open Receipt Dialog
+                      </li>
+                      <li className="text-blue-600 font-semibold">
+                        <strong>R</strong>: Print Receipt
                       </li>
                       <li className="text-blue-600 font-semibold">
                         <strong>N</strong>: Start New Transaction
@@ -1235,18 +1258,17 @@ export default function Component() {
                         <strong>V</strong>: Void Cart (Admin Auth Required)
                       </li>
                       <li className="text-blue-600 font-semibold">
+                        <strong>X</strong>: Toggle Shift Drawer
+                      </li>
+                      <li className="text-blue-600 font-semibold">
+                        <strong>Arrow Up/Down</strong>: Navigate Cart Items
+                      </li>
+                      <li className="text-blue-600 font-semibold">
                         <strong>[</strong>: Navigate Next Pending Transaction
                       </li>
                       <li className="text-blue-600 font-semibold">
                         <strong>]</strong>: Navigate Previous Pending
                         Transaction
-                      </li>
-                      <li className="text-blue-600 font-semibold">
-                        <strong> Z</strong>: Generate Z Report (Admin Auth
-                        Required)
-                      </li>
-                      <li className="text-blue-600 font-semibold">
-                        <strong>Arrow Up/Down</strong>: Navigate Cart Items
                       </li>
                       <li className="text-blue-600 font-semibold">
                         <strong>A</strong>: Retrieve Pending Transaction
@@ -1255,16 +1277,7 @@ export default function Component() {
                         <strong>F</strong>: Save to Pending
                       </li>
                       <li className="text-blue-600 font-semibold">
-                        <strong>Shift + Left</strong>: Update Quantity
-                      </li>
-                      <li className="text-blue-600 font-semibold">
-                        <strong>Shift + Right</strong>: Delete Selected Item
-                      </li>
-                      <li className="text-blue-600 font-semibold">
                         <strong>G</strong>: Generate Shift Report
-                      </li>
-                      <li className="text-blue-600 font-semibold">
-                        <strong>Shift + L</strong>: Logout
                       </li>
                     </ul>
                   </div>
@@ -1273,6 +1286,14 @@ export default function Component() {
             </SheetHeader>
           </SheetContent>
         </Sheet>
+        <Drawer>
+          <DrawerTrigger>test</DrawerTrigger>
+          <DrawerContent>
+            {" "}
+            {/* <ProductsPage /> */}
+            <SideChart />
+          </DrawerContent>
+        </Drawer>
         <div className="block border rounded-sm  bg-blue-100">
           <div className="max-h-[300px] overflow-y-auto border border-gray-200">
             <Table className="text-xl min-w-full">
@@ -1345,6 +1366,7 @@ export default function Component() {
           </div>
         </div>
         <div className="flex-1 border rounded-lg overflow-auto bg-blue-100">
+          {/* <ProductTable />  */}
           <AlertDialog
             open={isAuthDialogOpen}
             onOpenChange={setIsAuthDialogOpen}
