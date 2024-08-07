@@ -1,0 +1,29 @@
+[2024-08-07 06:14:48] [INFO] Received data: {"cashier":"Raz Baldoza","items":[{"barcode":"1001","prod_name":"Bulad","prod_price":"10.00","quantity":1,"total":10},{"barcode":"1002","prod_name":"Mantika","prod_price":"30.00","quantity":1,"total":30},{"barcode":"1003","prod_name":"Noodles","prod_price":"20.00","quantity":1,"total":20}],"total":60,"cashTendered":100,"change":40,"date":"2024-08-07T04:14:48.316Z","shiftNumber":"2"}
+[2024-08-07 06:14:48] [INFO] Inserted sales record with ID: 15
+[2024-08-07 06:14:48] [INFO] Inserted sales_item: {"barcode":"1001","prod_name":"Bulad","prod_price":"10.00","quantity":1,"total":10}
+[2024-08-07 06:14:48] [INFO] Inserted sales_item: {"barcode":"1002","prod_name":"Mantika","prod_price":"30.00","quantity":1,"total":30}
+[2024-08-07 06:14:48] [INFO] Inserted sales_item: {"barcode":"1003","prod_name":"Noodles","prod_price":"20.00","quantity":1,"total":20}
+[2024-08-07 06:14:48] [INFO] Transaction committed successfully for sales ID: 15
+[2024-08-07 06:18:04] [INFO] Received data: {"cashier":"Raz Baldoza","items":[{"barcode":"1003","prod_name":"Noodles","prod_price":"20.00","quantity":1,"total":20},{"barcode":"1015","prod_name":"Saging","prod_price":"55.00","quantity":1,"total":55}],"total":75,"cashTendered":100,"change":25,"date":"2024-08-07T04:18:04.027Z","shiftNumber":"2"}
+[2024-08-07 06:18:04] [INFO] Inserted sales record with ID: 16
+[2024-08-07 06:18:04] [INFO] Inserted sales_item: {"barcode":"1003","prod_name":"Noodles","prod_price":"20.00","quantity":1,"total":20}
+[2024-08-07 06:18:04] [INFO] Inserted sales_item: {"barcode":"1015","prod_name":"Saging","prod_price":"55.00","quantity":1,"total":55}
+[2024-08-07 06:18:04] [INFO] Transaction committed successfully for sales ID: 16
+[2024-08-07 06:21:27] [INFO] Received data: {"cashier":"Giann Legaspi","items":[{"barcode":"1004","prod_name":"Sabon","prod_price":"35.00","quantity":1,"total":35},{"barcode":"1005","prod_name":"Shampoo","prod_price":"15.00","quantity":1,"total":15},{"barcode":"1013","prod_name":"Suka","prod_price":"22.00","quantity":1,"total":22}],"total":72,"cashTendered":100,"change":28,"date":"2024-08-07T04:21:27.301Z","shiftNumber":"1"}
+[2024-08-07 06:21:27] [INFO] Inserted sales record with ID: 17
+[2024-08-07 06:21:27] [INFO] Inserted sales_item: {"barcode":"1004","prod_name":"Sabon","prod_price":"35.00","quantity":1,"total":35}
+[2024-08-07 06:21:27] [INFO] Inserted sales_item: {"barcode":"1005","prod_name":"Shampoo","prod_price":"15.00","quantity":1,"total":15}
+[2024-08-07 06:21:27] [INFO] Inserted sales_item: {"barcode":"1013","prod_name":"Suka","prod_price":"22.00","quantity":1,"total":22}
+[2024-08-07 06:21:27] [INFO] Transaction committed successfully for sales ID: 17
+[2024-08-07 06:23:32] [INFO] Received data: {"cashier":"Giann Legaspi","items":[{"barcode":"1010","prod_name":"Tuna","prod_price":"40.00","quantity":1,"total":40}],"total":40,"cashTendered":50,"change":10,"date":"2024-08-07T04:23:32.540Z","shiftNumber":"1"}
+[2024-08-07 06:23:32] [INFO] Inserted sales record with ID: 18
+[2024-08-07 06:23:32] [INFO] Inserted sales_item: {"barcode":"1010","prod_name":"Tuna","prod_price":"40.00","quantity":1,"total":40}
+[2024-08-07 06:23:32] [INFO] Transaction committed successfully for sales ID: 18
+[2024-08-07 06:23:42] [INFO] Received data: {"cashier":"Giann Legaspi","items":[{"barcode":"1004","prod_name":"Sabon","prod_price":"35.00","quantity":1,"total":35}],"total":35,"cashTendered":40,"change":5,"date":"2024-08-07T04:23:42.739Z","shiftNumber":"1"}
+[2024-08-07 06:23:42] [INFO] Inserted sales record with ID: 19
+[2024-08-07 06:23:42] [INFO] Inserted sales_item: {"barcode":"1004","prod_name":"Sabon","prod_price":"35.00","quantity":1,"total":35}
+[2024-08-07 06:23:42] [INFO] Transaction committed successfully for sales ID: 19
+[2024-08-07 06:25:53] [INFO] Received data: {"cashier":"Giann Legaspi","items":[{"barcode":"1003","prod_name":"Noodles","prod_price":"20.00","quantity":1,"total":20}],"total":20,"cashTendered":20,"change":0,"date":"2024-08-07T04:25:53.707Z","shiftNumber":"1"}
+[2024-08-07 06:25:53] [INFO] Inserted sales record with ID: 20
+[2024-08-07 06:25:53] [INFO] Inserted sales_item: {"barcode":"1003","prod_name":"Noodles","prod_price":"20.00","quantity":1,"total":20}
+[2024-08-07 06:25:53] [INFO] Transaction committed successfully for sales ID: 20

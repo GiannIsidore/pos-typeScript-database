@@ -1,76 +1,73 @@
 <?php
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+// Include the database connection
+require_once '../phpdata/connection.php'; // Adjust the path to your connection.php file
 
-// Get the JSON input
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-// Debug: Log the received data
-error_log("Received data: " . print_r($data, true));
+// Start the session
+session_start();
 
-// Check for JSON errors
-if (json_last_error() !== JSON_ERROR_NONE) {
-    echo json_encode(["status" => "error", "message" => "Invalid JSON input"]);
-    exit;
-}
+// Define the log file path
+$logFilePath = '../phpdata/usersPassedFromFrntEnd.log'; // Adjust the path as necessary
 
-// Validate input
-if (!isset($data['username']) || !isset($data['password'])) {
-    echo json_encode(["status" => "error", "message" => "Username and password are required"]);
-    exit;
-}
+// Only handle POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get the POST data
+    $input = json_decode(file_get_contents('php://input'), true);
+    $username = $input['username'] ?? '';
+    $password = $input['password'] ?? '';
 
-$username = trim($data['username']); // trim whitespace
-$password = trim($data['password']); // trim whitespace
+    // Log the input data
+    file_put_contents($logFilePath, json_encode($input) . PHP_EOL, FILE_APPEND);
 
-// Database credentials
-$servername = "localhost";
-$dbname = "pos_system"; // The name of your database
-$db_username = "your_user"; // Your MySQL username
-$db_password = "your_password"; // Your MySQL password
+    if (empty($username) || empty($password)) {
+        echo json_encode(['status' => 'error', 'message' => 'Username and password are required.']);
+        exit;
+    }
 
-// Create connection
-$conn = new mysqli($servername, $db_username, $db_password, $dbname);
+    try {
+        // Prepare the SQL statement to fetch the user by username
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt->execute(['username' => $username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Check connection
-if ($conn->connect_error) {
-    error_log("Database connection failed: " . $conn->connect_error);
-    echo json_encode(["status" => "error", "message" => "Database connection failed"]);
-    exit;
-}
+        if ($user) {
+            // Check if the provided password matches the one in the database
+            if ($password === $user['password']) {
+                // Password matches, authentication successful
+                // Store user details in session
+                $_SESSION['userId'] = $user['userId'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['fullname'] = $user['fName'] . ' ' . $user['lName'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['shift'] = $user['shift'];
 
-// Debug: Check if connection is successful
-error_log("Database connection established");
-
-// Prepare and execute the query
-$stmt = $conn->prepare("SELECT id, fullname, role, password FROM cashiers WHERE username = ?");
-$stmt->bind_param("s", $username);
-$stmt->execute();
-$stmt->bind_result($id, $fullname, $role, $stored_password);
-$stmt->fetch();
-
-// Debug: Log the fetched data
-error_log("Fetched data: ID - $id, Fullname - $fullname, Role - $role, Password - $stored_password");
-
-// Verify the password
-if ($id && $password === $stored_password) {
-    error_log("Login successful");
-    echo json_encode([
-        "status" => "success",
-        "message" => "Login successful",
-        "fullname" => $fullname,
-        "role" => $role,
-        "id" => $id
-    ]);
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Authentication successful.',
+                    'username' => $user['username'],
+                    'fullname' => $_SESSION['fullname'],
+                    'shift' => $user['shift'],
+                    'role' => $user['role'],
+                    'id' => $user['userId']
+                ]);
+            } else {
+                // Password does not match
+                echo json_encode(['status' => 'error', 'message' => 'Invalid username or password.']);
+            }
+        } else {
+            // No user found
+            echo json_encode(['status' => 'error', 'message' => 'Invalid username or password.']);
+        }
+    } catch (PDOException $e) {
+        // Handle query error
+        echo json_encode(['status' => 'error', 'message' => 'Query failed: ' . $e->getMessage()]);
+    }
 } else {
-    error_log("Login failed: Invalid username or password");
-    echo json_encode(["status" => "error", "message" => "Invalid username or password"]);
+    // Invalid request method
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
 }
-
-// Close statement and connection
-$stmt->close();
-$conn->close();
 ?>
