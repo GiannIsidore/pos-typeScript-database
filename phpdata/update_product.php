@@ -6,7 +6,7 @@ $barcode = $_POST['barcode'] ?? '';
 $prod_name = $_POST['prod_name'] ?? '';
 $prod_price = $_POST['prod_price'] ?? '';
 
-if ($barcode == '' || $prod_name == '' || $prod_price == '') {
+if ($prod_name == '' || $prod_price == '') {
     echo json_encode(['status' => 'error', 'message' => 'All fields are required']);
     exit;
 }
@@ -23,5 +23,4 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
-
 ?>

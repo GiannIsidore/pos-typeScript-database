@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableHeader,
@@ -40,6 +41,7 @@ interface Product {
 }
 
 const Dashboard: React.FC = () => {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedProductIndex, setSelectedProductIndex] = useState<
@@ -61,20 +63,20 @@ const Dashboard: React.FC = () => {
   const prodNameInputRef = useRef<HTMLInputElement>(null);
   const prodPriceInputRef = useRef<HTMLInputElement>(null);
   const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
+  const alertRefsSub = useRef<(HTMLTableRowElement | null)[]>([]);
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get<Product[]>(
+        "http://localhost/3rdProj/p-o-s-master/phpdata/fetch_products.php"
+      );
+      setProducts(response.data);
+      setFilteredProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get<Product[]>(
-          "http://localhost/3rdProj/p-o-s-master/phpdata/fetch_products.php"
-        );
-        setProducts(response.data);
-        setFilteredProducts(response.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-
     fetchProducts();
   }, []);
 
@@ -89,91 +91,126 @@ const Dashboard: React.FC = () => {
     handleSearch();
   }, [searchQuery, handleSearch]);
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    const key = event.key;
-    if (key === "/") {
-      event.preventDefault();
-      searchInputRef.current?.focus();
-      return;
-    }
+  const logout = () => {
+    sessionStorage.clear();
+    router.push("/");
+    toast({ title: "Logged out successfully", variant: "success" });
+  };
 
-    if (event.ctrlKey && key === "Enter") {
-      handleAddProduct();
-      return;
-    }
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      const key = event.key;
 
-    if (event.shiftKey && key === "Enter" && selectedProductIndex !== null) {
-      setSelectedProduct(filteredProducts[selectedProductIndex]);
-      setAlertOpen(true);
-      return;
-    }
-
-    if (key === "Delete" && selectedProductIndex !== null) {
-      handleDeleteProduct(filteredProducts[selectedProductIndex].barcode);
-      console.log(filteredProducts[selectedProductIndex].barcode);
-      return;
-    }
-
-    switch (true) {
-      case key === "ArrowUp":
+      if (key === "/") {
         event.preventDefault();
-        setSelectedProductIndex((prevIndex) => {
-          const newIndex = prevIndex! > 0 ? prevIndex! - 1 : prevIndex;
-          rowRefs.current[newIndex]?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-          return newIndex;
-        });
-        break;
+        searchInputRef.current?.focus();
+        return;
+      }
 
-      case key === "ArrowDown":
-        event.preventDefault();
-        setSelectedProductIndex((prevIndex) => {
-          const newIndex =
-            prevIndex! < filteredProducts.length - 1
-              ? prevIndex! + 1
-              : prevIndex;
-          rowRefs.current[newIndex]?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-          return newIndex;
-        });
-        break;
+      // if (event.shiftKey && selectedProductIndex !== null) {
+      //   setSelectedProduct(filteredProducts[selectedProductIndex]);
+      //   setAlertOpen(true);
+      //   return;
+      // }
 
-      case key === "[":
-      case key === "]":
-        const columns = ["barcode", "prod_name", "prod_price"];
-        const currentIndex = columns.indexOf(selectedColumn);
-        if (key === "[") {
-          const newIndex =
-            currentIndex > 0 ? currentIndex - 1 : columns.length - 1;
-          setSelectedColumn(columns[newIndex]);
-        } else {
-          const newIndex =
-            currentIndex < columns.length - 1 ? currentIndex + 1 : 0;
-          setSelectedColumn(columns[newIndex]);
-        }
-        break;
+      // if (event.shiftKey && key === "Enter" && selectedProductIndex !== null) {
+      //   setSelectedProduct(filteredProducts[selectedProductIndex]);
+      //   setAlertOpen(true);
+      //   return;
+      // }
 
-      case key === "Enter":
-        if (selectedProductIndex !== null) {
-          const selectedProduct = filteredProducts[selectedProductIndex];
-          console.log("Selected product:", selectedProduct);
-        }
-        break;
+      if (key === "Delete" && selectedProductIndex !== null) {
+        handleDeleteProduct(filteredProducts[selectedProductIndex].barcode);
+        return;
+      }
+
+      if (key === "L" && event.shiftKey) {
+        logout();
+        return;
+      }
+
+      // if (key === "end" ) {
+      //   alertRefsSub.current[0]?.click();
+      // }
+
+      handleNavigationAndColumnSelection(event, key);
+    },
+    [filteredProducts, selectedProductIndex]
+  );
+
+  const handleNavigationAndColumnSelection = useCallback(
+    (event: KeyboardEvent, key: string) => {
+      switch (key) {
+        case "ArrowUp":
+          handleArrowUp(event);
+          break;
+        case "ArrowDown":
+          handleArrowDown(event);
+          break;
+        case "[":
+          handleColumnSelection(-1);
+          break;
+        case "]":
+          handleColumnSelection(1);
+          break;
+        case "Enter":
+          handleEnter();
+          break;
+        default:
+          break;
+      }
+    },
+    [selectedColumn, filteredProducts, selectedProductIndex]
+  );
+
+  const handleArrowUp = (event: KeyboardEvent) => {
+    event.preventDefault();
+    setSelectedProductIndex((prevIndex) => {
+      if (prevIndex === null) {
+        return 0; // or any default index you prefer
+      }
+      const newIndex = prevIndex > 0 ? prevIndex - 1 : prevIndex;
+      rowRefs.current[newIndex]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      return newIndex;
+    });
+  };
+
+  const handleArrowDown = (event: KeyboardEvent) => {
+    event.preventDefault();
+    setSelectedProductIndex((prevIndex) => {
+      if (prevIndex === null) {
+        return 0; // or any default index you prefer
+      }
+      const newIndex =
+        prevIndex < filteredProducts.length - 1 ? prevIndex + 1 : prevIndex;
+      rowRefs.current[newIndex]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      return newIndex;
+    });
+  };
+
+  const handleColumnSelection = (direction: number) => {
+    const columns = ["barcode", "prod_name", "prod_price"];
+    const currentIndex = columns.indexOf(selectedColumn);
+    const newIndex =
+      (currentIndex + direction + columns.length) % columns.length;
+    setSelectedColumn(columns[newIndex]);
+  };
+
+  const handleEnter = () => {
+    if (selectedProductIndex !== null) {
+      const selectedProduct = filteredProducts[selectedProductIndex];
+      console.log("Selected product:", selectedProduct);
     }
   };
 
   useEffect(() => {
     const handleKeyDownWithRef = (event: KeyboardEvent) => {
-      if (
-        event.target instanceof HTMLElement &&
-        ["INPUT", "TEXTAREA"].includes(event.target.tagName)
-      ) {
-        return;
-      }
       handleKeyDown(event);
     };
 
@@ -181,7 +218,7 @@ const Dashboard: React.FC = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDownWithRef);
     };
-  }, [selectedProductIndex, filteredProducts, selectedColumn]);
+  }, [handleKeyDown]);
 
   const handleAddProduct = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -191,16 +228,12 @@ const Dashboard: React.FC = () => {
         newProduct
       );
       if (response.data.status === "success") {
-        const updatedProducts = await axios.get<Product[]>(
-          "http://localhost/3rdProj/p-o-s-master/phpdata/fetch_products.php"
-        );
+        await fetchProducts();
         toast({
           title: "Product added",
           variant: "success",
           description: "Product has been added successfully.",
         });
-        setProducts(updatedProducts.data);
-        setFilteredProducts(updatedProducts.data);
         setNewProduct({ barcode: "", prod_name: "", prod_price: "" });
         setErrorMessage("");
       } else {
@@ -216,7 +249,8 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleUpdateProduct = async () => {
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (selectedProduct) {
       try {
         const response = await axios.post(
@@ -224,16 +258,12 @@ const Dashboard: React.FC = () => {
           selectedProduct
         );
         if (response.data.status === "success") {
-          const updatedProducts = await axios.get<Product[]>(
-            "http://localhost/3rdProj/p-o-s-master/phpdata/fetch_products.php"
-          );
+          await fetchProducts();
           toast({
             title: "Product updated",
             variant: "success",
             description: "Product has been updated successfully.",
           });
-          setProducts(updatedProducts.data);
-          setFilteredProducts(updatedProducts.data);
           setSelectedProduct(null);
           setAlertOpen(false);
         } else {
@@ -243,7 +273,6 @@ const Dashboard: React.FC = () => {
             variant: "destructive",
             description: response.data.message,
           });
-          ``;
         }
       } catch (error) {
         console.error("Error updating product:", error);
@@ -264,15 +293,13 @@ const Dashboard: React.FC = () => {
       console.log(data);
 
       if (data.status === "success") {
-        // Handle successful deletion
         toast({
           title: "Product deleted",
           variant: "success",
           description: "Product has been deleted successfully.",
         });
-        // Refresh the product list or update state
+        fetchProducts();
       } else {
-        // Handle error
         toast({
           title: "Error",
           variant: "destructive",
@@ -302,7 +329,7 @@ const Dashboard: React.FC = () => {
             </CardHeader>
             <CardContent className="max-h-[80vh]">
               <div className="flex items-center justify-between max-h-[80vh] mt-4">
-                <div className="max-w-[70vw] max-h-[80vh] h-full  w-full col-span-2">
+                <div className="max-w-[70vw] max-h-[80vh] h-full w-full col-span-2">
                   <input
                     type="text"
                     ref={searchInputRef}
@@ -330,6 +357,11 @@ const Dashboard: React.FC = () => {
                                 : ""
                             }
                             ref={(el) => (rowRefs.current[index] = el)}
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setAlertOpen(true);
+                            }}
+                            // ref={(el) => (alertRefs.current[index] = el)}
                           >
                             <td
                               className={`py-4 px-6 text-black ${
@@ -365,7 +397,7 @@ const Dashboard: React.FC = () => {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Product Add/Edit</CardTitle>
+              <CardTitle>Product Add</CardTitle>
             </CardHeader>
             <CardContent>
               <div>
@@ -440,30 +472,18 @@ const Dashboard: React.FC = () => {
           </Card>
         </div>
       </main>
-      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+      {/* <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
         <AlertDialogTrigger className="hidden" />
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Update Product</AlertDialogTitle>
             <AlertDialogDescription>
-              <form className="w-full" onSubmit={handleUpdateProduct}>
+              <form
+                className="w-full"
+                onSubmit={handleUpdateProduct}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
                 <div className="grid gap-4">
-                  <div>
-                    <Label htmlFor="updateBarcode">Barcode</Label>
-                    <Input
-                      id="updateBarcode"
-                      type="text"
-                      placeholder="Barcode"
-                      value={selectedProduct?.barcode || ""}
-                      onChange={(e) =>
-                        setSelectedProduct((prev) => ({
-                          ...prev!,
-                          barcode: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
                   <div>
                     <Label htmlFor="updateProductName">Product Name</Label>
                     <Input
@@ -497,17 +517,18 @@ const Dashboard: React.FC = () => {
                     />
                   </div>
                 </div>
+                <button
+                  onClick={handleUpdateProduct}
+                  className="den"
+                  ref={alertRefsSub}
+                >
+                  Update Product
+                </button>
               </form>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUpdateProduct}>
-              Update
-            </AlertDialogAction>
-          </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </div>
   );
 };
@@ -524,16 +545,13 @@ function BarchartChart(props) {
         );
         const data = response.data;
 
-        // Log the response data to verify its structure
         console.log("Sales data received:", data);
 
-        // Ensure data contains the correct product information
         if (data && data.status === "success") {
           const salesData = data.sales;
-          const date = salesData[0].sales_date; // Assuming all entries are from the same date
+          const date = salesData[0].sales_date;
           setSalesDate(date);
 
-          // Transform the data to match the structure required by Recharts
           const transformedData = salesData.map((sale) => ({
             cashier: `${sale.fName} ${sale.lName}`,
             sales: sale.items.reduce(
@@ -546,7 +564,7 @@ function BarchartChart(props) {
           setChartData(transformedData);
         } else {
           setChartData([]);
-          setSalesDate(""); // No sales data for the day
+          setSalesDate("");
         }
       } catch (error) {
         console.error("Error fetching sales data:", error);
@@ -560,7 +578,6 @@ function BarchartChart(props) {
     "Giann Legaspi": "#8884d8",
     "Christian Valencia": "#82ca9d",
     "Raz Baldoza": "#ffc658",
-    // Add more cashiers and their respective colors here
   };
 
   return (

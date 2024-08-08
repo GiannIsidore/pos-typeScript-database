@@ -8,8 +8,6 @@ import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
 
 export default function LoginForm() {
-  const [scannedData, setScannedData] = useState("");
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -41,7 +39,11 @@ export default function LoginForm() {
         sessionStorage.setItem("userId", response.data.id);
         localStorage.setItem("userId", response.data.id);
 
-        router.push(`/pos?username=${username}`);
+        if (response.data.role === 0) {
+          router.push(`/admin?username=${username}`);
+        } else {
+          router.push(`/pos?username=${username}`);
+        }
       } else {
         toast({
           title: "Login failed",
