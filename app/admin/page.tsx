@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -356,12 +357,13 @@ const Dashboard: React.FC = () => {
                                 ? "bg-blue-300"
                                 : ""
                             }
-                            ref={(el) => (rowRefs.current[index] = el)}
+                            ref={(el) => {
+                              rowRefs.current[index] = el;
+                            }}
                             onClick={() => {
                               setSelectedProduct(product);
                               setAlertOpen(true);
                             }}
-                            // ref={(el) => (alertRefs.current[index] = el)}
                           >
                             <td
                               className={`py-4 px-6 text-black ${
@@ -533,7 +535,7 @@ const Dashboard: React.FC = () => {
   );
 };
 
-function BarchartChart(props) {
+function BarchartChart(props: React.ComponentProps<"div">) {
   const [chartData, setChartData] = useState([]);
   const [salesDate, setSalesDate] = useState("");
 
@@ -552,10 +554,10 @@ function BarchartChart(props) {
           const date = salesData[0].sales_date;
           setSalesDate(date);
 
-          const transformedData = salesData.map((sale) => ({
+          const transformedData = salesData.map((sale: any) => ({
             cashier: `${sale.fName} ${sale.lName}`,
             sales: sale.items.reduce(
-              (total, item) =>
+              (total: any, item: any) =>
                 total + parseFloat(item.sales_item_prc) * item.sales_item_qty,
               0
             ),
@@ -574,11 +576,11 @@ function BarchartChart(props) {
     fetchSalesData();
   }, []);
 
-  const colorMap = {
-    "Giann Legaspi": "#8884d8",
-    "Christian Valencia": "#82ca9d",
-    "Raz Baldoza": "#ffc658",
-  };
+  // const colorMap = {
+  //   "Giann Legaspi": "#8884d8",
+  //   "Christian Valencia": "#82ca9d",
+  //   "Raz Baldoza": "#ffc658",
+  // };
 
   return (
     <div {...props}>
@@ -613,18 +615,14 @@ function BarchartChart(props) {
             cursor={false}
             content={<ChartTooltipContent hideLabel />}
           />
-          <Bar
-            dataKey="sales"
-            radius={8}
-            fill={(entry) => colorMap[entry.cashier] || "#000"}
-          />
+          <Bar dataKey="sales" radius={8} fill={"#000"} />
         </BarChart>
       </ChartContainer>
     </div>
   );
 }
 
-function FilePenIcon(props) {
+function FilePenIcon(props: React.ComponentProps<"svg">) {
   return (
     <svg
       {...props}
@@ -645,7 +643,7 @@ function FilePenIcon(props) {
   );
 }
 
-function TrashIcon(props) {
+function TrashIcon(props: React.ComponentProps<"svg">) {
   return (
     <svg
       {...props}

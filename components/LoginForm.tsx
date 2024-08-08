@@ -44,7 +44,9 @@ export default function LoginForm() {
         } else {
           router.push(`/pos?username=${username}`);
         }
+        resetForm();
       } else {
+        resetForm();
         toast({
           title: "Login failed",
           description: response.data.message,
@@ -53,6 +55,7 @@ export default function LoginForm() {
       }
     } catch (error) {
       console.error("Error logging in:", error);
+      resetForm();
       toast({
         title: "Login failed",
         description: "An error occurred. Please try again.",
@@ -68,7 +71,7 @@ export default function LoginForm() {
       if (usernameRef.current) {
         usernameRef.current.focus();
       }
-    }, 100); // Timeout to allow the UI to update
+    }, 10); // Timeout to allow the UI to update
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

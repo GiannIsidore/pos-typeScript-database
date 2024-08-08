@@ -35,7 +35,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, useRef, use } from "react";
 import axios from "axios";
 import { Separator } from "@/components/ui/separator";
-import BarcodeScanner from "@/components/Barcode";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -53,8 +52,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { SideChart } from "@/components/SideCharts";
-import ProductsPage from "@/components/Products";
-import ProductTable from "@/components/AlertProducts";
+
 // types.ts
 export interface Transaction {
   id: number;
@@ -474,6 +472,7 @@ export default function Component() {
           break;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       cart,
       selectedItemIndex,
@@ -871,7 +870,7 @@ export default function Component() {
 
       // Calculate the grand total of all sales
       const grandTotal = Object.values(cashierSales).reduce(
-        (total, cashierSalesList) =>
+        (total, cashierSalesList: any[]) =>
           total +
           cashierSalesList.reduce(
             (sum, sale) => sum + parseFloat(sale.sales_totalAmount),
@@ -900,12 +899,12 @@ export default function Component() {
             <div class="header">Z Report</div>
             ${Object.entries(cashierSales)
               .map(
-                ([cashierName, sales]) => `
+                ([cashierName, sales]: [string, any[]]) => `
                 <div class="cashier-section">
                   <div>Cashier: ${cashierName}</div>
                   ${sales
                     .map(
-                      (sale) => `
+                      (sale: any) => `
                       <div>
                         <div>Sale ID: ${sale.sales_id}</div>
                         <div>Date: ${new Date(
@@ -915,7 +914,7 @@ export default function Component() {
                         <div>Items:</div>
                         ${sale.items
                           .map(
-                            (item) => `
+                            (item: any) => `
                             <div class="sale-item">
                               ${item.prod_name} - Quantity: ${item.sales_item_qty} - Price: ₱${item.sales_item_prc}
                             </div>
@@ -932,7 +931,7 @@ export default function Component() {
               )
               .join("")}
             <div class="footer">
-              Grand Total: ₱${grandTotal.toFixed(2)}
+              Grand Total: ₱${grandTotal}
             </div>
           </div>
         </body>
